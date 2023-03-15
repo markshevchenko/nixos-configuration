@@ -58,6 +58,11 @@
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
+  # https://nixos.wiki/wiki/Printing
+  services.avahi.enable = true;
+  services.avahi.nssmdns = true;
+  # for a WiFi printer
+  services.avahi.openFirewall = true;
 
   # Enable sound with pipewire.
   sound.enable = true;
@@ -109,6 +114,17 @@
     jetbrains.rider
     tdesktop
     whatsapp-for-linux
+    dotnet-sdk_7
+    cargo
+    docker
+    ntfs3g
+    audacity
+    (writeShellScriptBin "startvpn.sh" ''
+      sudo systemctl start openvpn-aezaVPN.service
+    '')
+    (writeShellScriptBin "stopvpn.sh" ''
+      sudo systemctl stop openvpn-aezaVPN.service
+    '')
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -123,6 +139,10 @@
 
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
+
+  services.openvpn.servers = {
+    aezaVPN = { config = '' config /root/nixos/openvpn/aeza.conf ''; };
+  };
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
