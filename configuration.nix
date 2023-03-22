@@ -128,6 +128,8 @@
     (writeShellScriptBin "stopvpn.sh" ''
       sudo systemctl stop openvpn-aezaVPN.service
     '')
+    vlc
+    dosbox-staging
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
