@@ -109,6 +109,7 @@
   #  wget
     git
     google-chrome
+    dotnet-sdk
     dotnet-sdk_7
     rustc
     cargo
