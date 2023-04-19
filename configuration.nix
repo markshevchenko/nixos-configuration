@@ -84,11 +84,14 @@
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
+  # Enable docker (https://nixos.wiki/wiki/Docker)
+  virtualisation.docker.enable = true;
+
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.mark = {
     isNormalUser = true;
     description = "Mark Shevchenko";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" ];
     packages = with pkgs; [
       firefox
     #  thunderbird
@@ -119,7 +122,6 @@
     jetbrains.rider
     tdesktop
     whatsapp-for-linux
-    docker
     ntfs3g
     pavucontrol
     audacity
