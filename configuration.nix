@@ -114,6 +114,7 @@
     google-chrome
     dotnet-sdk
     dotnet-sdk_7
+    mono
     rustc
     cargo
     rust-analyzer
