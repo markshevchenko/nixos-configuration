@@ -135,6 +135,7 @@
     vlc
     dosbox-staging
     discord
+    gimp-with-plugins
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
