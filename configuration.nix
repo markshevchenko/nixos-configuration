@@ -136,6 +136,7 @@
     dosbox-staging
     discord
     gimp-with-plugins
+    texlive.combined.scheme-medium
     pandoc
   ];
 
