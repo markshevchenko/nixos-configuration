@@ -136,6 +136,7 @@
     dosbox-staging
     discord
     gimp-with-plugins
+    pandoc
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
