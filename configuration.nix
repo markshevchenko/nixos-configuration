@@ -13,9 +13,9 @@
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.loader.efi.efiSysMountPoint = "/boot/efi";
 
-  networking.hostName = "nixos"; # Define your hostname.
+  networking.hostName = "marklab"; # Define your hostname.
+  networking.domain = "local";
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -46,9 +46,9 @@
   # Enable the X11 windowing system.
   services.xserver.enable = true;
 
-  # Enable the Cinnamon Desktop Environment.
-  services.xserver.displayManager.lightdm.enable = true;
-  services.xserver.desktopManager.cinnamon.enable = true;
+  # Enable the GNOME Desktop Environment.
+  services.xserver.displayManager.gdm.enable = true;
+  services.xserver.desktopManager.gnome.enable = true;
 
   # Configure keymap in X11
   services.xserver = {
@@ -58,23 +58,18 @@
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
-  # https://nixos.wiki/wiki/Printing
-  services.avahi.enable = true;
-  services.avahi.nssmdns = true;
-  # for a WiFi printer
-  services.avahi.openFirewall = true;
 
   # Enable sound with pipewire.
   sound.enable = true;
-  hardware.pulseaudio.enable = true;
+  hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
-    enable = false;
+    enable = true;
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
     # If you want to use JACK applications, uncomment this
-    jack.enable = true;
+    #jack.enable = true;
 
     # use the example session manager (no others are packaged yet so this is enabled by default,
     # no need to redefine it in your config for now)
@@ -84,7 +79,6 @@
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
-  # Enable docker (https://nixos.wiki/wiki/Docker)
   virtualisation.docker.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
@@ -102,6 +96,10 @@
   services.xserver.displayManager.autoLogin.enable = true;
   services.xserver.displayManager.autoLogin.user = "mark";
 
+  # Workaround for GNOME autologin: https://github.com/NixOS/nixpkgs/issues/103746#issuecomment-945091229
+  systemd.services."getty@tty1".enable = false;
+  systemd.services."autovt@tty1".enable = false;
+
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
@@ -112,33 +110,13 @@
   #  wget
     git
     google-chrome
-    dotnet-sdk
-    dotnet-sdk_7
-    mono
-    rustc
-    cargo
-    rust-analyzer
     emacs
     vscode
-    jetbrains.rider
     tdesktop
     whatsapp-for-linux
-    ntfs3g
-    pavucontrol
-    audacity
-    (writeShellScriptBin "startvpn.sh" ''
-      sudo systemctl start openvpn-aezaVPN.service
-    '')
-    (writeShellScriptBin "stopvpn.sh" ''
-      sudo systemctl stop openvpn-aezaVPN.service
-    '')
     vlc
-    dosbox-staging
     discord
     gimp-with-plugins
-    librsvg
-    texlive.combined.scheme-medium
-    pandoc
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -154,13 +132,6 @@
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
 
-  services.openvpn.servers = {
-    aezaVPN = {
-      autoStart = false;
-      config = '' config /root/nixos/openvpn/aeza.conf '';
-    };
-  };
-
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
@@ -173,6 +144,6 @@
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "22.11"; # Did you read the comment?
+  system.stateVersion = "23.11"; # Did you read the comment?
 
 }
