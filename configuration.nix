@@ -8,6 +8,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      <home-manager/nixos>
     ];
 
   # Bootloader.
@@ -91,6 +92,22 @@
     #  thunderbird
     ];
   };
+
+  # home-manager.users.mark = { pkgs, ... }:
+  #  let
+  #    doom-emacs = pkgs.callPackage (builtins.fetchTarball {
+  #      url = https://github.com/vlaci/nix-doom-emacs/archive/master.tar.gz;
+  #    }) {
+  #      doomPrivateDir = ./doom.d;
+  #    };
+  #  in {
+  #    home.packages = [ doom-emacs ];
+  #    home.file.".emacs.d/init.el".text = ''
+  #        (load "default.el")
+  #    '';
+  #
+  #    home.stateVersion = "24.05";
+  #  };
 
   # Enable automatic login for the user.
   services.xserver.displayManager.autoLogin.enable = true;
