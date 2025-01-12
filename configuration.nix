@@ -8,7 +8,6 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      <home-manager/nixos>
     ];
 
   # Bootloader.
@@ -61,7 +60,6 @@
   services.printing.enable = true;
 
   # Enable sound with pipewire.
-  sound.enable = true;
   hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -89,7 +87,6 @@
     extraGroups = [ "networkmanager" "wheel" "docker" ];
     packages = with pkgs; [
       firefox
-    #  thunderbird
     ];
   };
 
@@ -102,7 +99,7 @@
   systemd.services."autovt@tty1".enable = false;
 
   # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.allowUnfree = false;
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -111,13 +108,13 @@
   #  wget
     git
     google-chrome
-    emacs
     vscode
     tdesktop
     whatsapp-for-linux
     vlc
     gimp-with-plugins
     inkscape
+    libreoffice
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -146,5 +143,4 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.11"; # Did you read the comment?
-
 }
