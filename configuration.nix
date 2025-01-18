@@ -56,6 +56,26 @@
     xkb.variant = "";
   };
 
+  # Excluding some GNOME applications from the default install
+  # (from https://nixos.wiki/wiki/GNOME).
+  environment.gnome.excludePackages = (with pkgs; [
+    atomix # puzzle game
+    cheese # webcam tool
+    epiphany # web browser
+    evince # document viewer
+    geary # email reader
+    gedit # text editor
+    gnome-characters
+    gnome-music
+    gnome-photos
+    gnome-terminal
+    gnome-tour
+    hitori # sudoku game
+    iagno # go game
+    tali # poker game
+    totem # video player
+  ]);
+
   # Enable CUPS to print documents.
   services.printing.enable = true;
 
@@ -99,13 +119,14 @@
   systemd.services."autovt@tty1".enable = false;
 
   # Allow unfree packages
-  nixpkgs.config.allowUnfree = false;
+  nixpkgs.config.allowUnfree = true;
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
   #  wget
+    gnomeExtensions.appindicator 
     git
     google-chrome
     vscode
@@ -115,6 +136,11 @@
     gimp-with-plugins
     inkscape
     libreoffice
+  ];
+
+  # Systray Icons (from https://nixos.wiki/wiki/GNOME).
+  services.udev.packages = with pkgs; [
+    gnome.gnome-settings-daemon
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
