@@ -136,12 +136,25 @@
     gimp-with-plugins
     inkscape
     libreoffice
+    openvpn3
+    toolbox
+    minikube
   ];
+
+  programs.openvpn3.enable = true;
 
   # Systray Icons (from https://nixos.wiki/wiki/GNOME).
   services.udev.packages = with pkgs; [
-    gnome.gnome-settings-daemon
+    gnome-settings-daemon
   ];
+
+  services.openvpn.servers = {
+    wbVPN = {
+      config = '' config /home/mark/openvpn/wb.ovpn '';
+      updateResolvConf = true;
+      autoStart = true;
+    };
+  };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
