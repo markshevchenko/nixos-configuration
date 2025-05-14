@@ -139,6 +139,7 @@
     openvpn3
     toolbox
     minikube
+    emacs
   ];
 
   programs.openvpn3.enable = true;
