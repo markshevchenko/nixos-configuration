@@ -140,6 +140,7 @@
     toolbox
     minikube
     emacs
+    obs-studio
   ];
 
   programs.openvpn3.enable = true;
