@@ -106,6 +106,7 @@
     description = "Mark Shevchenko";
     extraGroups = [ "networkmanager" "wheel" "docker" ];
     packages = with pkgs; [
+      sof-firmware
       firefox
     ];
   };
@@ -128,8 +129,8 @@
   #  wget
     gnomeExtensions.appindicator 
     git
-    google-chrome
-    vscode
+    chromium
+    vscodium
     tdesktop
     whatsapp-for-linux
     vlc
