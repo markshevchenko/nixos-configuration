@@ -142,6 +142,7 @@
     minikube
     emacs
     obs-studio
+    kdiff3
   ];
 
   programs.openvpn3.enable = true;
