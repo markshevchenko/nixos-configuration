@@ -136,6 +136,7 @@
     chromium
     emacs
     vscode
+    code-cursor
     telegram-desktop
     wasistlos
     vlc
@@ -150,7 +151,7 @@
 
   # Systray Icons (from https://nixos.wiki/wiki/GNOME).
   services.udev.packages = with pkgs; [
-    gnome-settings-daemon
+    gnome.gnome-settings-daemon
   ];
 
   services.openvpn.servers = {
