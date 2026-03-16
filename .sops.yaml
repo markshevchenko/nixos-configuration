@@ -1,0 +1,7 @@
+keys:
+  - &mark age14unz6l929axzqlgxudefay6k3wvyln6pyk8xngh43mwwwuwjx97qxtdla3
+creation_rules:
+  - path_regex: secrets/secrets.yaml$
+    key_groups:
+    - age:
+      - *mark

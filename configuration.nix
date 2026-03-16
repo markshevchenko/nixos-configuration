@@ -8,6 +8,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      <sops-nix/modules/sops>
     ];
 
   # Bootloader.
@@ -16,11 +17,11 @@
 
   networking.hostName = "marklab"; # Define your hostname.
   networking.domain = "local";
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+  #networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+  #networking.proxy.default = "http://user:password@proxy:port/";
+  #networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Enable networking
   networking.networkmanager.enable = true;
@@ -47,34 +48,32 @@
   services.xserver.enable = true;
 
   # Enable the GNOME Desktop Environment.
-  services.displayManager.gdm.enable = true;
-  services.desktopManager.gnome.enable = true;
+  services.displayManager.sddm.wayland.enable = true;
+  services.desktopManager.plasma6.enable = true;
+
+  # How to automatically unlock kwallet at start up?
+  # https://discourse.nixos.org/t/how-to-automatically-unlock-kwallet-at-start-up/61308
+  security = {
+    # If enabled, pam_wallet will attempt to automatically unlock the user’s default KDE wallet upon login.
+    # If the user has no wallet named “kdewallet”, or the login password does not match their wallet password,
+    # KDE will prompt separately after login.
+    pam = {
+      services = {
+        mark = {
+          kwallet = {
+            enable = true;
+            package = pkgs.kdePackages.kwallet-pam;
+          };
+        };
+      };
+    };
+  };
 
   # Configure keymap in X11
   services.xserver = {
     xkb.layout = "us";
     xkb.variant = "";
   };
-
-  # Excluding some GNOME applications from the default install
-  # (from https://nixos.wiki/wiki/GNOME).
-  environment.gnome.excludePackages = (with pkgs; [
-    atomix # puzzle game
-    cheese # webcam tool
-    epiphany # web browser
-    evince # document viewer
-    geary # email reader
-    gedit # text editor
-    gnome-characters
-    gnome-music
-    gnome-photos
-    gnome-terminal
-    gnome-tour
-    hitori # sudoku game
-    iagno # go game
-    tali # poker game
-    totem # video player
-  ]);
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
@@ -96,7 +95,7 @@
   };
 
   # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
+  #services.xserver.libinput.enable = true;
 
   virtualisation.docker = { 
     enable = true;
@@ -117,51 +116,57 @@
   services.displayManager.autoLogin.enable = true;
   services.displayManager.autoLogin.user = "mark";
 
-  # Workaround for GNOME autologin: https://github.com/NixOS/nixpkgs/issues/103746#issuecomment-945091229
-  systemd.services."getty@tty1".enable = false;
-  systemd.services."autovt@tty1".enable = false;
-
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  # sops
+  sops = {
+    defaultSopsFile = ./secrets/secrets.yaml;
+    # Will not be copied to /nix/store:
+    age.keyFile = "/root/.config/sops/age/keys.txt";
+
+    secrets = {
+      aitunnelClaude = {
+        sopsFile = ./secrets/secrets.yaml;
+        owner = "mark";
+      };
+    };
+  };
+
+  # Enable Polkit
+  security.polkit.enable = true;
+  
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
     docker-compose
-    gnomeExtensions.appindicator 
     git
     kdiff3
     chromium
     emacs
     vscode
-    code-cursor
     telegram-desktop
-    wasistlos
     vlc
     gimp-with-plugins
     inkscape
     libreoffice
     openvpn3
     obs-studio
+    code-cursor
+    age
+    sops
   ];
 
   programs.openvpn3.enable = true;
-
-  # Systray Icons (from https://nixos.wiki/wiki/GNOME).
-  services.udev.packages = with pkgs; [
-    gnome.gnome-settings-daemon
-  ];
-
   services.openvpn.servers = {
-    wbVPN = {
+    WB = {
       config = '' config /home/mark/openvpn/wb.ovpn '';
       updateResolvConf = true;
       autoStart = true;
     };
   };
 
+  # Ministry of Digital Development certificate
   security.pki.certificates = [
     ''
     -----BEGIN CERTIFICATE-----
