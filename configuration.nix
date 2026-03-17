@@ -123,12 +123,31 @@
   sops = {
     defaultSopsFile = ./secrets/secrets.yaml;
     # Will not be copied to /nix/store:
-    age.keyFile = "/root/.config/sops/age/keys.txt";
+    age.keyFile = "/etc/age/identity.key";
 
     secrets = {
-      aitunnelClaude = {
-        sopsFile = ./secrets/secrets.yaml;
+      aitunnel-token = {
         owner = "mark";
+      };
+
+      "openvpn/wb/ca" = {
+        owner = "root";
+      };
+
+      "openvpn/wb/cert" = {
+        owner = "root";
+      };
+
+      "openvpn/wb/key" = {
+        owner = "root";
+      };
+
+      "openvpn/wb/tls-crypt" = {
+        owner = "root";
+      };
+
+      "openvpn/wb/askpass" = {
+        owner = "root";
       };
     };
   };
@@ -147,7 +166,6 @@
     vscode
     telegram-desktop
     vlc
-    gimp-with-plugins
     inkscape
     libreoffice
     openvpn3
@@ -159,8 +177,30 @@
 
   programs.openvpn3.enable = true;
   services.openvpn.servers = {
-    WB = {
-      config = '' config /home/mark/openvpn/wb.ovpn '';
+    wb = {
+      config = ''
+        client
+        dev tun
+        tun-mtu 1372
+        proto udp
+        remote openvpn.wb.ru 1194
+        resolv-retry 10
+        nobind
+        persist-key
+        persist-tun
+        ca ${config.sops.secrets."openvpn/wb/ca".path}
+        cert ${config.sops.secrets."openvpn/wb/cert".path}
+        key ${config.sops.secrets."openvpn/wb/key".path}
+        tls-crypt ${config.sops.secrets."openvpn/wb/tls-crypt".path}
+        askpass ${config.sops.secrets."openvpn/wb/askpass".path}
+        remote-cert-tls server
+        key-direction 1
+        cipher AES-256-GCM
+        auth SHA256
+        verb 4
+        push-peer-info
+        setenv FRIENDLY_NAME "WB VPN"
+      '';
       updateResolvConf = true;
       autoStart = true;
     };
