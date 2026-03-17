@@ -9,6 +9,7 @@
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
       <sops-nix/modules/sops>
+      <home-manager/nixos>
     ];
 
   # Bootloader.
@@ -101,10 +102,37 @@
     isNormalUser = true;
     description = "Mark Shevchenko";
     extraGroups = [ "networkmanager" "wheel" "docker" ];
-    packages = with pkgs; [
-      firefox
-    ];
   };
+
+  home-manager.useGlobalPkgs = true;
+  home-manager.users.mark = { pkgs, ... }: {
+    home.username = "mark";
+    home.homeDirectory = "/home/mark";
+    home.packages = with pkgs; [
+      firefox
+      chromium
+      vscode
+      code-cursor
+      telegram-desktop
+      vlc
+      inkscape
+      libreoffice
+      obs-studio
+      kdiff3
+    ] ++ lib.optionals config.services.desktopManager.plasma6.enable [
+      kdePackages.kcharselect
+    ];
+
+    # This value determines the Home Manager release that your configuration is
+    # compatible with. This helps avoid breakage when a new Home Manager release
+    # introduces backwards incompatible changes.
+    #
+    # You should not change this value, even if you update Home Manager. If you do
+    # want to update the value, then make sure to first check the Home Manager
+    # release notes.
+    home.stateVersion = "25.11"; # Please read the comment before changing.
+  };
+
 
   # Enable automatic login for the user.
   services.displayManager.autoLogin.enable = true;
@@ -154,21 +182,9 @@
   environment.systemPackages = with pkgs; [
     docker-compose
     git
-    kdiff3
-    chromium
-    emacs
-    vscode
-    telegram-desktop
-    vlc
-    inkscape
-    libreoffice
     openvpn3
-    obs-studio
-    code-cursor
     age
     sops
-  ] ++ lib.optionals config.services.desktopManager.plasma6.enable [
-    kdePackages.kcharselect
   ];
 
   # OpenVPN
