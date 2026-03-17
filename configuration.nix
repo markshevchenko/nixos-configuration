@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   imports =
@@ -47,25 +47,19 @@
   # Enable the X11 windowing system.
   services.xserver.enable = true;
 
-  # Enable the GNOME Desktop Environment.
+  # Enable the KDE Desktop Environment.
   services.displayManager.sddm.wayland.enable = true;
   services.desktopManager.plasma6.enable = true;
 
   # How to automatically unlock kwallet at start up?
   # https://discourse.nixos.org/t/how-to-automatically-unlock-kwallet-at-start-up/61308
-  security = {
+  security.pam = lib.mkIf config.services.desktopManager.plasma6.enable {
     # If enabled, pam_wallet will attempt to automatically unlock the user’s default KDE wallet upon login.
     # If the user has no wallet named “kdewallet”, or the login password does not match their wallet password,
     # KDE will prompt separately after login.
-    pam = {
-      services = {
-        mark = {
-          kwallet = {
-            enable = true;
-            package = pkgs.kdePackages.kwallet-pam;
-          };
-        };
-      };
+    services.mark.kwallet = {
+      enable = true;
+      package = pkgs.kdePackages.kwallet-pam;
     };
   };
 
@@ -173,8 +167,11 @@
     code-cursor
     age
     sops
+  ] ++ lib.optionals config.services.desktopManager.plasma6.enable [
+    kdePackages.kcharselect
   ];
 
+  # OpenVPN
   programs.openvpn3.enable = true;
   services.openvpn.servers = {
     wb = {
@@ -206,7 +203,7 @@
     };
   };
 
-  # Ministry of Digital Development certificate
+  # Ministry of Digital Development root (public) certificate
   security.pki.certificates = [
     ''
     -----BEGIN CERTIFICATE-----
