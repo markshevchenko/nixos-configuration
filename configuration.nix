@@ -16,16 +16,29 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "marklab"; # Define your hostname.
-  networking.domain = "local";
-  #networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+  networking = {
+    hostName = "marklab";
+    domain = "local";
 
-  # Configure network proxy if necessary
-  #networking.proxy.default = "http://user:password@proxy:port/";
-  #networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+    nameservers = [
+      "77.88.8.8"
+      "77.88.8.1"
+      "8.8.8.8"
+      "8.8.4.4"
+    ];
 
-  # Enable networking
-  networking.networkmanager.enable = true;
+    #wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+
+    # Configure network proxy if necessary
+    #proxy.default = "http://user:password@proxy:port/";
+    #proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+
+    # Enable networking
+    networkmanager = {
+      enable = true;
+      dns = "none";
+    };
+  };
 
   # Set your time zone.
   time.timeZone = "Europe/Moscow";
@@ -47,10 +60,19 @@
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
+  # Configure keymap in X11
+  services.xserver = {
+    xkb.layout = "us";
+    xkb.variant = "";
+  };
 
   # Enable the KDE Desktop Environment.
   services.displayManager.sddm.wayland.enable = true;
   services.desktopManager.plasma6.enable = true;
+
+  # Enable automatic login for the user.
+  services.displayManager.autoLogin.enable = true;
+  services.displayManager.autoLogin.user = "mark";
 
   # How to automatically unlock kwallet at start up?
   # https://discourse.nixos.org/t/how-to-automatically-unlock-kwallet-at-start-up/61308
@@ -62,12 +84,6 @@
       enable = true;
       package = pkgs.kdePackages.kwallet-pam;
     };
-  };
-
-  # Configure keymap in X11
-  services.xserver = {
-    xkb.layout = "us";
-    xkb.variant = "";
   };
 
   # Enable CUPS to print documents.
@@ -106,37 +122,39 @@
 
   home-manager.useGlobalPkgs = true;
   home-manager.users.mark = { pkgs, ... }: {
-    home.username = "mark";
-    home.homeDirectory = "/home/mark";
-    home.packages = with pkgs; [
-      firefox
-      chromium
-      vscode
-      code-cursor
-      telegram-desktop
-      vlc
-      inkscape
-      libreoffice
-      obs-studio
-      kdiff3
-    ] ++ lib.optionals config.services.desktopManager.plasma6.enable [
-      kdePackages.kcharselect
-    ];
+    home = {
+      username = "mark";
+      homeDirectory = "/home/mark";
+      packages = with pkgs; [
+        firefox
+        chromium
+        vscode
+        code-cursor
+        telegram-desktop
+        vlc
+        inkscape
+        libreoffice
+        obs-studio
+        kdiff3
+        gimp2-with-plugins
+        traceroute
+        tcpdump
+        bind.dnsutils
+      ] ++ lib.optionals config.services.desktopManager.plasma6.enable [
+        kdePackages.kcharselect
+      ];
 
-    # This value determines the Home Manager release that your configuration is
-    # compatible with. This helps avoid breakage when a new Home Manager release
-    # introduces backwards incompatible changes.
-    #
-    # You should not change this value, even if you update Home Manager. If you do
-    # want to update the value, then make sure to first check the Home Manager
-    # release notes.
-    home.stateVersion = "25.11"; # Please read the comment before changing.
+      # This value determines the Home Manager release that your configuration is
+      # compatible with. This helps avoid breakage when a new Home Manager release
+      # introduces backwards incompatible changes.
+      #
+      # You should not change this value, even if you update Home Manager. If you do
+      # want to update the value, then make sure to first check the Home Manager
+      # release notes.
+      stateVersion = "25.11"; # Please read the comment before changing.
+    };
   };
 
-
-  # Enable automatic login for the user.
-  services.displayManager.autoLogin.enable = true;
-  services.displayManager.autoLogin.user = "mark";
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -215,7 +233,7 @@
         setenv FRIENDLY_NAME "WB VPN"
       '';
       updateResolvConf = true;
-      autoStart = true;
+      autoStart = false;
     };
   };
 
