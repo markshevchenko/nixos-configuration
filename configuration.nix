@@ -16,6 +16,9 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  hardware.bluetooth.enable = true;
+  services.blueman.enable = true;
+
   networking = {
     hostName = "marklab";
     domain = "local";
@@ -128,7 +131,6 @@
       packages = with pkgs; [
         firefox
         chromium
-        vscode
         code-cursor
         telegram-desktop
         vlc
@@ -152,6 +154,65 @@
       # want to update the value, then make sure to first check the Home Manager
       # release notes.
       stateVersion = "25.11"; # Please read the comment before changing.
+    };
+
+    programs.vscode = {
+      enable = true;
+      profiles.default = {
+        extensions = with pkgs.vscode-extensions; [
+          anthropic.claude-code
+          bbenoist.nix
+          docker.docker
+          golang.go
+          ionide.ionide-fsharp
+          mhutchie.git-graph
+          ms-dotnettools.csharp
+          ms-dotnettools.csdevkit
+          ms-dotnettools.vscode-dotnet-runtime
+          ms-vscode.remote-explorer
+          ms-vscode-remote.remote-ssh
+          ms-vscode-remote.remote-ssh-edit
+          ms-vsliveshare.vsliveshare
+          ocamllabs.ocaml-platform
+          rust-lang.rust-analyzer
+#          streetsidesoftware.code-spell-checker
+          tomoki1207.pdf
+          vadimcn.vscode-lldb
+        ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
+          {
+            name = "insert-unicode";
+            publisher = "brunnerh";
+            version = "0.15.1";
+            sha256 = "sha256-RHsq7JmlC+4zGSbDdovCZpjpSW+DvcmYnuz9f6F/N4g=";
+          }
+        ];
+#          {
+#            name = "code-spell-checker-russian";
+#            publisher = "streetsidesoftware";
+#            version = "2.2.4";
+#            sha256 = "sha256-Vn/Vu502A9qPVHfnJ3CZUXcM2knIIG6bJHce0r72Rv0=";
+#          }
+        # Optional: configure user settings declaratively
+        userSettings = {
+          "editor.fontSize" = 14;
+          "window.zoomLevel" = 1.4;
+          "git.blame.editorDecoration.enabled" = true;
+          "git.confirmSync" = false;
+          "git.enableSmartCommit" = true;
+          "workbench.editor.enablePreview" = false;
+          "gopls" = {
+            "ui.semanticTokens" = true;
+          };
+          "workbench.colorTheme" = "Visual Studio Dark";
+          "editor.bracketPairColorization.enabled" = false;
+          "mcpServers" = {};
+          "git.mergeEditor" = true;
+          "chat.disableAIFeatures" = true;
+          "makefile.configureOnOpen" = false;
+          "claudeCode.preferredLocation" = "panel";
+          "claudeCode.useTerminal" = true;
+        };
+      };
     };
   };
 
