@@ -4,12 +4,26 @@
 
 { config, pkgs, lib, ... }:
 
+let
+  # release-26.05, 2026-10-24
+  home-manager = builtins.fetchTarball {
+    url = "https://github.com/nix-community/home-manager/archive/24f2190587513b9c2f73db112a17844ae912d965.tar.gz";
+    sha256 = "0z9ivs49j8n7r20kbyh86x59fl3izd90407djz678jfmwvp65pyp";
+  };
+
+  # master, 2026-10-26. Отдельной ветки release-26.05 у sops-nix нет.
+  sops-nix = builtins.fetchTarball {
+    url = "https://github.com/Mic92/sops-nix/archive/60182817ee048ac94b4c68ea76d5ef2e8aac730d.tar.gz";
+    sha256 = "0fk81bs1c8c3p8ab3152a4hw6qjqkcdli6pw1ndyd56c74fliwk3";
+  };
+in
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      <sops-nix/modules/sops>
-      <home-manager/nixos>
+      ./home.nix
+      "${home-manager}/nixos"
+      "${sops-nix}/modules/sops"
     ];
 
   # Bootloader.
@@ -39,9 +53,21 @@
     # Enable networking
     networkmanager = {
       enable = true;
+      # dns = "systemd-resolved";
       dns = "none";
     };
   };
+
+  # services.resolved = {
+  #   enable = true;
+  #   settings = {
+  #     Resolve = {
+  #       Domains = [ "~." ];
+  #       FallbackDns = [ "8.8.8.8" "8.8.4.4" ];
+  #       DNSSEC = "allow-downgrade";
+  #     };
+  #   };
+  # };
 
   # Set your time zone.
   time.timeZone = "Europe/Moscow";
@@ -123,99 +149,17 @@
     extraGroups = [ "networkmanager" "wheel" "docker" ];
   };
 
-  home-manager.useGlobalPkgs = true;
-  home-manager.users.mark = { pkgs, ... }: {
-    home = {
-      username = "mark";
-      homeDirectory = "/home/mark";
-      packages = with pkgs; [
-        firefox
-        chromium
-        code-cursor
-        telegram-desktop
-        vlc
-        inkscape
-        libreoffice
-        obs-studio
-        kdiff3
-        gimp2-with-plugins
-        traceroute
-        tcpdump
-        bind.dnsutils
-      ] ++ lib.optionals config.services.desktopManager.plasma6.enable [
-        kdePackages.kcharselect
-      ];
+  programs.nix-ld.enable = true;
+  programs.nix-ld.package = pkgs.nix-ld;
+  programs.nix-ld.libraries = with pkgs; [
+    stdenv.cc.cc
+    zlib
+    icu
+    openssl
+    curl
+  ];
 
-      # This value determines the Home Manager release that your configuration is
-      # compatible with. This helps avoid breakage when a new Home Manager release
-      # introduces backwards incompatible changes.
-      #
-      # You should not change this value, even if you update Home Manager. If you do
-      # want to update the value, then make sure to first check the Home Manager
-      # release notes.
-      stateVersion = "25.11"; # Please read the comment before changing.
-    };
-
-    programs.vscode = {
-      enable = true;
-      profiles.default = {
-        extensions = with pkgs.vscode-extensions; [
-          anthropic.claude-code
-          bbenoist.nix
-          docker.docker
-          golang.go
-          ionide.ionide-fsharp
-          mhutchie.git-graph
-          ms-dotnettools.csharp
-          ms-dotnettools.csdevkit
-          ms-dotnettools.vscode-dotnet-runtime
-          ms-vscode.remote-explorer
-          ms-vscode-remote.remote-ssh
-          ms-vscode-remote.remote-ssh-edit
-          ms-vsliveshare.vsliveshare
-          ocamllabs.ocaml-platform
-          rust-lang.rust-analyzer
-#          streetsidesoftware.code-spell-checker
-          tomoki1207.pdf
-          vadimcn.vscode-lldb
-        ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
-          {
-            name = "insert-unicode";
-            publisher = "brunnerh";
-            version = "0.15.1";
-            sha256 = "sha256-RHsq7JmlC+4zGSbDdovCZpjpSW+DvcmYnuz9f6F/N4g=";
-          }
-        ];
-#          {
-#            name = "code-spell-checker-russian";
-#            publisher = "streetsidesoftware";
-#            version = "2.2.4";
-#            sha256 = "sha256-Vn/Vu502A9qPVHfnJ3CZUXcM2knIIG6bJHce0r72Rv0=";
-#          }
-        # Optional: configure user settings declaratively
-        userSettings = {
-          "editor.fontSize" = 14;
-          "window.zoomLevel" = 1.4;
-          "git.blame.editorDecoration.enabled" = true;
-          "git.confirmSync" = false;
-          "git.enableSmartCommit" = true;
-          "workbench.editor.enablePreview" = false;
-          "gopls" = {
-            "ui.semanticTokens" = true;
-          };
-          "workbench.colorTheme" = "Visual Studio Dark";
-          "editor.bracketPairColorization.enabled" = false;
-          "mcpServers" = {};
-          "git.mergeEditor" = true;
-          "chat.disableAIFeatures" = true;
-          "makefile.configureOnOpen" = false;
-          "claudeCode.preferredLocation" = "panel";
-          "claudeCode.useTerminal" = true;
-        };
-      };
-    };
-  };
-
+  # programs.amnezia-vpn.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -262,9 +206,15 @@
     docker-compose
     git
     openvpn3
+    update-systemd-resolved
     age
     sops
+    distrobox
   ];
+
+  # services.resolved = {
+  #   enable = true;
+  # };
 
   # OpenVPN
   programs.openvpn3.enable = true;
@@ -293,6 +243,16 @@
         push-peer-info
         setenv FRIENDLY_NAME "WB VPN"
       '';
+
+
+      # dhcp-option DOMAIN-ROUTE .
+      # script-security 2
+      # setenv PATH /run/current-system/sw/bin:/etc/profiles/per-user/root/current-system/profile/bin
+      # up ${pkgs.update-systemd-resolved}/libexec/openvpn/update-systemd-resolved
+      # down ${pkgs.update-systemd-resolved}/libexec/openvpn/update-systemd-resolved
+      # up-restart
+      # down-pre
+
       updateResolvConf = true;
       autoStart = false;
     };
@@ -355,7 +315,7 @@
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
+  #networking.firewall.allowedUDPPorts = [ 51820 ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
