@@ -16,6 +16,16 @@ let
     url = "https://github.com/Mic92/sops-nix/archive/60182817ee048ac94b4c68ea76d5ef2e8aac730d.tar.gz";
     sha256 = "0fk81bs1c8c3p8ab3152a4hw6qjqkcdli6pw1ndyd56c74fliwk3";
   };
+
+  nixpkgs-unstable = builtins.fetchTarball {
+    url = "https://github.com/NixOS/nixpkgs/archive/c399e1b7fb90789e3e032784ef8ad98ba9907169.tar.gz";
+    sha256 = "00bscnjfy2sgwyndnasn9s9zbl1fqhbp6bbk8c3zd1wbjwn0hnss";
+  };
+
+  unstablePkgs = import nixpkgs-unstable {
+    system = pkgs.stdenv.hostPlatform.system;
+    config.allowUnfree = true;
+  };
 in
 {
   imports =
@@ -25,6 +35,8 @@ in
       "${home-manager}/nixos"
       "${sops-nix}/modules/sops"
     ];
+
+  _module.args.unstablePkgs = unstablePkgs;
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -172,6 +184,10 @@ in
 
     secrets = {
       aitunnel-token = {
+        owner = "mark";
+      };
+
+      aitunnel-opencode-token = {
         owner = "mark";
       };
 
